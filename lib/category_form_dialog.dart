@@ -66,11 +66,11 @@ class CategoryDialogFormState extends State<CategoryDialogForm> {
                         setState(() {});
                       },
                       validator: (String? value) {
-                        final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
+
                         if (value == null || value.isEmpty) {
                           return 'Please enter some text!';
-                        } else if (!validCharacters.hasMatch(value)) {
-                          return 'Invalid characters!';
+                        } else if (value.contains("\$") ||value.contains("|")) {
+                          return 'Invalid characters! \$ and | are not allowed!';
                         } else if (!checkIfCategoryNameAvailable(value, "", oldCategoryName, widget.modifyMode)) {
                           return 'Name already used!';
                         } else {

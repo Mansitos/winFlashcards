@@ -18,7 +18,6 @@ Future<void> modifyCategory(int index, String name) async {
 
   Category modified = Category(name: name);
   debugPrint("\n > Modify class with index $index");
-  Category oldCategory = globals.categories[index];
   globals.categories[index] = modified;
   debugPrint("Now categories are: ${globals.categories}");
   globals.categoriesStorage.saveCategoriesToFile(globals.categories);

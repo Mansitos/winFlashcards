@@ -70,52 +70,54 @@ class CardDialogFormState extends State<CardDialogForm> {
                         setState(() {});
                       },
                       validator: (String? value) {
-                        final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
                         if (value == null || value.isEmpty) {
                           return 'Please enter some text!';
-                        } else if (!validCharacters.hasMatch(value)) {
-                          return 'Invalid characters!';
-                        } else if (!checkIfQCardNameAvailable(value, "", oldCardQuestion, widget.modifyMode)) {
-                          return 'Name already used!';
+                        } else if (value.contains("\$") ||value.contains("|")) {
+                          return 'Invalid characters! \$ and | are not allowed!';
+                        } else if (!checkIfQCardNameAvailable(value, "", oldCardQuestion, widget.modifyMode)) { //TODO: handle first letter capitl
+                          return 'This category already exists!';
                         } else {
                           cardQuestion = value;
                           return null;
                         }
                       },
                     ),
-                    TextFormField(
-                      cursorColor: Colors.blueAccent,
-                      style: const TextStyle(fontSize: 18),
-                      maxLength: 20,
-                      initialValue: (() {
-                        if (widget.modifyMode == true) {
-                          return oldCardAnswer;
-                        } else {
-                          return '';
-                        }
-                      }()),
-                      decoration: const InputDecoration(
-                        hintText: 'What\'s the QCard answer?',
-                        labelText: 'QCard answer',
-                        labelStyle: TextStyle(fontSize: 16, color: Colors.black45),
-                        hintStyle: TextStyle(fontSize: 16, color: Colors.black45),
-                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black45)),
-                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.blueAccent)),
+                    SizedBox(
+                      height: 210,
+                      child: TextFormField(
+                        cursorColor: Colors.blueAccent,
+                        style: const TextStyle(fontSize: 18),
+                        maxLength: 20000,
+                        maxLines: 10,
+                        initialValue: (() {
+                          if (widget.modifyMode == true) {
+                            return oldCardAnswer;
+                          } else {
+                            return '';
+                          }
+                        }()),
+                        decoration: const InputDecoration(
+                          hintText: 'What\'s the QCard answer?',
+                          labelText: 'QCard answer',
+                          labelStyle: TextStyle(fontSize: 16, color: Colors.black45),
+                          hintStyle: TextStyle(fontSize: 16, color: Colors.black45),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black45)),
+                          focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.blueAccent)),
+                        ),
+                        onSaved: (String? value) {
+                          setState(() {});
+                        },
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter some text!';
+                          } else if (value.contains("\$") ||value.contains("|")) {
+                            return 'Invalid characters! \$ and | are not allowed!';
+                          } else {
+                            cardAnswer = value.replaceAll("\n", " ");;
+                            return null;
+                          }
+                        },
                       ),
-                      onSaved: (String? value) {
-                        setState(() {});
-                      },
-                      validator: (String? value) {
-                        final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text!';
-                        } else if (!validCharacters.hasMatch(value)) {
-                          return 'Invalid characters!';
-                        } else {
-                          cardAnswer = value;
-                          return null;
-                        }
-                      },
                     ),
                   ],
                 ),
