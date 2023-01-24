@@ -19,13 +19,13 @@ class CardsStorage {
   Future<File> _localCardsFile(String categoryName) async {
     final path = await _localPath;
 
-    File file = File('$path/$categoryName.txt');
+    File file = File('$path/winFlashCardsFiles/$categoryName.txt');
 
     if (file.existsSync()) {
       return file;
     } else {
       debugPrint(" > Creating cards file for category $categoryName because it was missing!");
-      file = await File('$path/$categoryName.txt').create(recursive: true);
+      file = await File('$path/winFlashCardsFiles/$categoryName.txt').create(recursive: true);
       if (file.existsSync()) {}
     }
     return file;

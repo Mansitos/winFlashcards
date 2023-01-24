@@ -18,13 +18,13 @@ class CategoriesStorage {
   Future<File> get _localCategoriesFile async {
     final path = await _localPath;
 
-    File file = File('$path/categories.txt');
+    File file = File('$path/winFlashCardsFiles/categories.txt');
 
     if (file.existsSync()) {
       return file;
     } else {
       debugPrint(" > Creating categories file because it was missing!");
-      file = await File('$path/categories.txt').create(recursive: true);
+      file = await File('$path/winFlashCardsFiles/categories.txt').create(recursive: true);
       if (file.existsSync()) {}
     }
     return file;

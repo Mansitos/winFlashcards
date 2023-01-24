@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_cards/cards_utilities.dart';
-import 'package:study_cards/categories_utilities.dart';
+import 'globals.dart' as globals;
 
 // QCard Create-Modify Widget Form
 
@@ -24,7 +24,7 @@ class CardDialogFormState extends State<CardDialogForm> {
 
   @override
   Widget build(BuildContext context) {
-    String title = "Create New QCard";
+    String title = "Create new Flashcard for category ${globals.selectedCategory!.name}";
     if (widget.modifyMode == true) {
       // TODO: ... modify mode to implement
       //oldCardQuestion = globals.categories[widget.modifyIndex].name;
@@ -50,7 +50,7 @@ class CardDialogFormState extends State<CardDialogForm> {
                     TextFormField(
                       cursorColor: Colors.blueAccent,
                       style: const TextStyle(fontSize: 18),
-                      maxLength: 20,
+                      maxLength: 200,
                       initialValue: (() {
                         if (widget.modifyMode == true) {
                           return oldCardQuestion;
@@ -59,8 +59,8 @@ class CardDialogFormState extends State<CardDialogForm> {
                         }
                       }()),
                       decoration: const InputDecoration(
-                        hintText: 'What\'s the QCard name?',
-                        labelText: 'QCard name',
+                        hintText: 'What\'s the flashcard question?',
+                        labelText: 'Flashcard question',
                         labelStyle: TextStyle(fontSize: 16, color: Colors.black45),
                         hintStyle: TextStyle(fontSize: 16, color: Colors.black45),
                         enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black45)),
@@ -72,10 +72,8 @@ class CardDialogFormState extends State<CardDialogForm> {
                       validator: (String? value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter some text!';
-                        } else if (value.contains("\$") ||value.contains("|")) {
+                        } else if (value.contains("\$") || value.contains("|")) {
                           return 'Invalid characters! \$ and | are not allowed!';
-                        } else if (!checkIfQCardNameAvailable(value, "", oldCardQuestion, widget.modifyMode)) { //TODO: handle first letter capitl
-                          return 'This category already exists!';
                         } else {
                           cardQuestion = value;
                           return null;
@@ -97,8 +95,8 @@ class CardDialogFormState extends State<CardDialogForm> {
                           }
                         }()),
                         decoration: const InputDecoration(
-                          hintText: 'What\'s the QCard answer?',
-                          labelText: 'QCard answer',
+                          hintText: 'What\'s the flashcard answer?',
+                          labelText: 'Flashcard answer',
                           labelStyle: TextStyle(fontSize: 16, color: Colors.black45),
                           hintStyle: TextStyle(fontSize: 16, color: Colors.black45),
                           enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black45)),
@@ -110,10 +108,11 @@ class CardDialogFormState extends State<CardDialogForm> {
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter some text!';
-                          } else if (value.contains("\$") ||value.contains("|")) {
+                          } else if (value.contains("\$") || value.contains("|")) {
                             return 'Invalid characters! \$ and | are not allowed!';
                           } else {
-                            cardAnswer = value.replaceAll("\n", " ");;
+                            cardAnswer = value.replaceAll("\n", " ");
+                            ;
                             return null;
                           }
                         },

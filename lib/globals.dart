@@ -10,3 +10,4 @@ final CardsStorage cardsStorage = CardsStorage();
 List<Category> categories = [];
 List<QCard> loadedCards = [];
 Category? selectedCategory;
+bool squaredView = true;

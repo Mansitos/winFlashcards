@@ -31,23 +31,33 @@ class QCardWidgetState extends State<QCardWidget> {
         },
         child: flipped == false
             ? Center(
-                child: Text(
-                  widget.qCard.question,
-                  textAlign: TextAlign.center,
-                  style: questionStyle,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    widget.qCard.question,
+                    textAlign: TextAlign.center,
+                    style: questionStyle,
+                  ),
                 ),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    widget.qCard.question,
-                    style: questionStyleFlipped,
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      widget.qCard.question,
+                      textAlign: TextAlign.center,
+                      style: questionStyleFlipped,
+                    ),
                   ),
-                  Container(height: 10),
-                  Text(
-                    widget.qCard.answer,
-                    style: answerStyle,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10,),
+                    child: Text(
+                      widget.qCard.answer,
+                      textAlign: TextAlign.center,
+                      style: answerStyle,
+                    ),
                   ),
                 ],
               ),

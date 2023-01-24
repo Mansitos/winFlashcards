@@ -1,13 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:study_cards/card_form_dialog.dart';
 import 'package:study_cards/qcard_widget.dart';
+import 'package:study_cards/settings_dialog.dart';
 import 'category_form_dialog.dart';
 import 'globals.dart' as globals;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
 
   await globals.categoriesStorage.loadCategoriesFromFile();
 
@@ -17,6 +19,8 @@ Future<void> main() async {
   } else {
     debugPrint(" > There are no categories, no cards to load!");
   }
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -72,12 +76,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: maxSideContainerWidth,
                 height: MediaQuery.of(context).size.height,
                 color: Colors.blue,
-                child: ListView(
-                  children: _getSideDrawerHeaderWidget() + listOfCategoriesBuilder(context) + createCategoryButton(),
+                child: Column(
+                  children: [
+                    _getSideDrawerHeaderWidget(),
+                    Expanded(
+                      child: ListView(
+                        children: listOfCategoriesBuilder(context) + createCategoryButton(),
+                      ),
+                    ),
+                    _getSideDrawerBottomWidget(),
+                  ],
                 ),
               ),
             ),
-            cardsGridViewer(),
+            _mainGridWidget(),
           ],
         ));
   }
@@ -87,9 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     TextStyle style = const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w400);
     TextStyle selectedStyle = const TextStyle(fontSize: 21, color: Colors.white, fontWeight: FontWeight.w500);
-    Widget divider = const Divider(
-      thickness: 2,
-    );
+    Widget divider = const Divider(thickness: 2);
 
     categoriesTiles.add(divider);
 
@@ -104,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Row(
             children: [
               const Icon(
-                Icons.eleven_mp,
+                Icons.arrow_right,
                 color: Colors.white,
               ),
               Padding(
@@ -122,26 +132,24 @@ class _MyHomePageState extends State<MyHomePage> {
     return categoriesTiles;
   }
 
-  List<Widget> _getSideDrawerHeaderWidget() {
+  Widget _getSideDrawerHeaderWidget() {
     TextStyle titleStyle = const TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.w500);
 
-    return <Widget>[
-      Row(
-        children: [
-          SizedBox(
-            height: 100,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Image.asset("lib/assets/logo.png"),
-            ),
+    return Row(
+      children: [
+        SizedBox(
+          height: 100,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Image.asset("lib/assets/logo.png"),
           ),
-          Text(
-            "WinFlashcards",
-            style: titleStyle,
-          ),
-        ],
-      ),
-    ];
+        ),
+        Text(
+          "WinFlashcards",
+          style: titleStyle,
+        ),
+      ],
+    );
   }
 
   List<Widget> createCategoryButton() {
@@ -156,7 +164,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   context: context,
                   builder: (BuildContext context) {
                     return const CategoryDialogForm(modifyMode: false);
-                  }).then((_) => setState(() {}));
+                  }).then((_) => setState(() {
+                    globals.selectedCategory ??= globals.categories[0];
+                  }));
             });
           },
           backgroundColor: Colors.white,
@@ -170,35 +180,102 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget cardsGridViewer() {
+    double pad = 5;
+
     return Flexible(
         fit: FlexFit.tight,
         child: Container(
           color: Colors.black87,
-          child: CustomScrollView(
-            primary: false,
-            slivers: <Widget>[
-              SliverPadding(
-                padding: const EdgeInsets.all(20),
-                sliver: SliverGrid.count(
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: 3,
-                  children: _CardsListItemsBuilder(),
-                ),
+          child: Padding(
+            padding: EdgeInsets.all(pad * 2),
+            child: GridView.builder(
+              primary: false,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: pad,
+                mainAxisSpacing: pad,
+                childAspectRatio: globals.squaredView == true ? (1 / 1) : (1.33 / 1),
               ),
-            ],
+              itemCount: globals.loadedCards.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _flashcardGridItemBuilder(index);
+              },
+            ),
           ),
         ));
   }
 
-  List<Widget> _CardsListItemsBuilder() {
-    List<Widget> cardsWidgets = [];
+  Widget _flashcardGridItemBuilder(int index) {
+    Widget cardWidget = QCardWidget(qCard: globals.loadedCards[index]);
+    return cardWidget;
+  }
 
-    for (int i = 0; i <= globals.loadedCards.length - 1; i++) {
-      Widget cardWidget = QCardWidget(qCard: globals.loadedCards[i]);
-      cardsWidgets.add(cardWidget);
+  _mainGridWidget() {
+    if (globals.loadedCards.isNotEmpty) {
+      return cardsGridViewer();
+    } else {
+      String text = globals.categories.isNotEmpty ? "No flashcards for this category!\nPress the + button on the bottom right." : "No categories found!\nPress the + button on the left side-drawer.";
+      TextStyle textStyle = const TextStyle(fontSize: 30, color: Colors.white);
+
+      return Flexible(
+        fit: FlexFit.tight,
+        child: Container(
+          color: Colors.black87,
+          child: Center(
+            child: Text(
+              text,
+              style: textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
     }
+  }
 
-    return cardsWidgets;
+  Widget _getSideDrawerBottomWidget() {
+    double fontSize = 15;
+    double pad = 2;
+
+    Color col = Colors.white;
+    TextStyle style = TextStyle(fontSize: fontSize, color: col, fontWeight: FontWeight.w100);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        TextButton.icon(
+            onPressed: () {
+              debugPrint(" > Settings Button Pressed!");
+              setState(() {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const CategoryDialogForm(modifyMode: false);
+                    }).then((_) => setState(() {
+                }));
+              });
+            },
+            icon: Icon(Icons.settings, size: fontSize - 1, color: col),
+            label: Padding(
+              padding: EdgeInsets.only(bottom: pad),
+              child: Text("settings", style: style),
+            )),
+        TextButton.icon(
+            onPressed: () {
+              debugPrint(" > About Button Pressed!");
+              setState(() {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const SettingsDialog();
+                    }).then((_) => setState(() {}));
+              });
+            },
+            icon: Icon(Icons.info_outline, size: fontSize - 1, color: col),
+            label: Padding(
+              padding: EdgeInsets.only(bottom: pad),
+              child: Text("about", style: style),
+            )),
+      ],
+    );
   }
 }
